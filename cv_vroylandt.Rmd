@@ -1,0 +1,157 @@
+---
+title: "Thomas Vroylandt"
+author: Thomas Vroylandt
+output:
+  pagedown::html_resume:
+    self_contained: false
+    css: ["style/resume.css", "style/default.css"]
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  results='asis', 
+  echo = FALSE
+)
+
+library(tidyverse)
+library(glue)
+
+# fonction de cv
+print_section <- function(position_data, section_id) {
+  position_data %>%
+    filter(section == section_id) %>%
+    mutate(description_1 = case_when(is.na(description_1) ~ " ",
+                                     TRUE ~ description_1)) %>%
+    arrange(desc(end)) %>%
+    mutate(id = 1:n()) %>%
+    pivot_longer(
+      starts_with('description'),
+      names_to = 'description_num',
+      values_to = 'description',
+      values_drop_na = TRUE
+    ) %>%
+    group_by(id) %>%
+    mutate(descriptions = list(description)) %>%
+    ungroup() %>%
+    filter(description_num == 'description_1') %>%
+    mutate(
+      timeline = ifelse(is.na(start) | start == end,
+                        end,
+                        glue('{end} - {start}')),
+      description_bullets = case_when(description != " " ~ map_chr(
+        descriptions, ~ paste('-', ., collapse = '\n'),
+        TRUE ~ " "
+      )),
+    ) %>%
+    mutate_all( ~ ifelse(is.na(.), "", .)) %>%
+    glue_data(
+      "### {title}",
+      "\n\n",
+      "{institution}",
+      "\n\n",
+      "{loc}",
+      "\n\n",
+      "{timeline}",
+      "\n\n",
+      "{description_bullets}",
+      "\n\n\n",
+    )
+}
+
+position_data <- readxl::read_xlsx("positions_cv.xlsx",
+                                   col_types = c("text", "logical", rep("text", 8))) %>% 
+  filter(in_resume)
+```
+
+Aside
+================================================================================
+
+Informations {#contact}
+--------------------------------------------------------------------------------
+
+- <i class="fa fa-calendar"></i> Né le 22/04/1993 
+- <i class="fa fa-home"></i> 9-11 quai de la Canardière
+- 60500 Chantilly
+- <i class="fa fa-phone"></i> 06.47.53.39.11
+- <i class="fa fa-envelope"></i> tvroylandt@gmail.com
+- <i class="fa fa-file-alt"></i> [tvroylandt.netlify.com/]()
+- <i class="fa fa-twitter"></i> [twitter.com/tvroylandt]()
+- <i class="fa fa-github"></i> [github.com/tvroylandt]()
+
+
+Compétences {#competences}
+--------------------------------------------------------------------------------
+
+**Expert : **
+
+- R
+- SAS
+- SQL
+- Office
+
+**Intermédiaire :**
+
+- Shiny
+- Git
+
+**Notions :**
+
+- Python
+
+
+Langues {#langues}
+--------------------------------------------------------------------------------
+
+**Langue maternelle: **
+
+- Français
+
+**Bon niveau :**
+
+- Anglais
+- Allemand
+
+
+
+Main
+================================================================================
+
+Thomas Vroylandt {#title}
+--------------------------------------------------------------------------------
+
+Emploi {data-icon=suitcase}
+--------------------------------------------------------------------------------
+
+```{r}
+position_data %>% 
+  print_section("emploi")
+```
+
+Enseignement {data-icon=chalkboard-teacher}
+--------------------------------------------------------------------------------
+
+```{r}
+position_data %>% 
+  print_section("enseignement")
+```
+
+
+Formation {data-icon=graduation-cap data-concise=true}
+--------------------------------------------------------------------------------
+
+```{r}
+position_data %>% 
+  mutate(section = fct_collapse(section,
+                                "formation" = c("formation_initiale", "formation_continue"))) %>% 
+  print_section("formation")
+```
+
+Divers {data-icon=user-friends}
+--------------------------------------------------------------------------------
+
+```{r}
+position_data %>% 
+  print_section("divers")
+```
+
+
