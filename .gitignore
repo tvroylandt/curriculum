@@ -5,3 +5,6 @@
 
 # On ignore les lettres de motivation
 /lettres
+
+# Et le fichiers en sus
+/cv_vroylandt_files
