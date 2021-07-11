@@ -21,28 +21,11 @@ library(glue)
 print_section <- function(position_data, section_id) {
   position_data %>%
     filter(section == section_id) %>%
-    mutate(description_1 = case_when(is.na(description_1) ~ " ",
-                                     TRUE ~ description_1)) %>%
     arrange(desc(end)) %>%
-    mutate(id = 1:n()) %>%
-    pivot_longer(
-      starts_with('description'),
-      names_to = 'description_num',
-      values_to = 'description',
-      values_drop_na = TRUE
-    ) %>%
-    group_by(id) %>%
-    mutate(descriptions = list(description)) %>%
-    ungroup() %>%
-    filter(description_num == 'description_1') %>%
     mutate(
       timeline = ifelse(is.na(start) | start == end,
                         end,
-                        glue('{end} - {start}')),
-      description_bullets = case_when(description != " " ~ map_chr(
-        descriptions, ~ paste('-', ., collapse = '\n'),
-        TRUE ~ " "
-      )),
+                        glue('{end} - {start}'))
     ) %>%
     mutate_all( ~ ifelse(is.na(.), "", .)) %>%
     glue_data(
@@ -53,66 +36,49 @@ print_section <- function(position_data, section_id) {
       "{loc}",
       "\n\n",
       "{timeline}",
-      "\n\n",
-      "{description_bullets}",
       "\n\n\n",
     )
 }
 
-position_data <- readxl::read_xlsx("positions_cv.xlsx",
-                                   col_types = c("text", "logical", rep("text", 8))) %>% 
+position_data <- readxl::read_xlsx("positions_cv_en.xlsx",
+                                   col_types = c("text", "logical", rep("text", 5))) %>% 
   filter(in_resume)
 ```
 
 Aside
 ================================================================================
 
-Informations {#contact}
+Infos {#contact}
 --------------------------------------------------------------------------------
 
-- <i class="fa fa-calendar"></i> Né le 22/04/1993 
-- <i class="fa fa-home"></i> 8 parc du Chauffour
-- 60270 Gouvieux
-- <i class="fa fa-phone"></i> 06.47.53.39.11
-- <i class="fa fa-envelope"></i> tvroylandt@gmail.com
-- <i class="fa fa-file-alt"></i> [tvroylandt.netlify.com/]()
+- <i class="fa fa-calendar"></i> Born : 1993-04-22
+- <i class="fa fa-home"></i> 9-11 quai de la Canardière
+- 60500 Chantilly
+- FRANCE
+- <i class="fa fa-phone"></i> (+33)6.47.53.39.11
+- <i class="fa fa-envelope"></i> thomas@tillac-data.com
+- <i class="fa fa-file-alt"></i> [www.tillac-data.com/]()
 - <i class="fa fa-twitter"></i> [twitter.com/tvroylandt]()
 - <i class="fa fa-github"></i> [github.com/tvroylandt]()
 
 
-Compétences {#competences}
+Skills {#competences}
 --------------------------------------------------------------------------------
-
-**Expert : **
 
 - R
 - SAS
 - SQL
 - Office
+- Shiny
 - Git
 
-**Intermédiaire :**
 
-- Shiny
-
-**Notions :**
-
-- Python
-
-
-Langues {#langues}
+Languages {#langues}
 --------------------------------------------------------------------------------
 
-**Langue maternelle: **
-
-- Français
-
-**Bon niveau :**
-
-- Anglais
-- Allemand
-
-
+- French
+- English
+- German
 
 Main
 ================================================================================
@@ -120,7 +86,7 @@ Main
 Thomas Vroylandt {#title}
 --------------------------------------------------------------------------------
 
-Emploi {data-icon=suitcase}
+Positions {data-icon=suitcase}
 --------------------------------------------------------------------------------
 
 ```{r}
@@ -128,7 +94,7 @@ position_data %>%
   print_section("emploi")
 ```
 
-Enseignement {data-icon=chalkboard-teacher}
+Teaching {data-icon=chalkboard-teacher}
 --------------------------------------------------------------------------------
 
 ```{r}
@@ -137,7 +103,7 @@ position_data %>%
 ```
 
 
-Formation {data-icon=graduation-cap data-concise=true}
+Education {data-icon=graduation-cap data-concise=true}
 --------------------------------------------------------------------------------
 
 ```{r}
@@ -147,12 +113,12 @@ position_data %>%
   print_section("formation")
 ```
 
-<!-- Divers {data-icon=user-friends} -->
-<!-- -------------------------------------------------------------------------------- -->
+Misc {data-icon=user-friends}
+--------------------------------------------------------------------------------
 
-<!-- ```{r} -->
-<!-- position_data %>%  -->
-<!--   print_section("divers") -->
-<!-- ``` -->
+```{r}
+position_data %>%
+  print_section("divers")
+```
 
 
